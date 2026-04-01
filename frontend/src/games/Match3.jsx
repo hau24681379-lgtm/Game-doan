@@ -1,63 +1,21 @@
-<<<<<<< HEAD
-import React, { useState, useEffect } from 'react';
-import { Box, Paper, IconButton } from '@mui/material';
-=======
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Paper, Typography, Zoom } from '@mui/material';
->>>>>>> 80fe5ea
 
-const WIDTH = 8;
-const CANDIES = ['🔴', '🔵', '🟢', '🟡', '🟣', '🟠'];
+export default function Match3({ game, gameState, setGameState, onWin }) {
+  const config = typeof game?.config === 'string' ? JSON.parse(game.config || '{}') : (game?.config || {});
+  const WIDTH = config.grid_size || 8;
+  const CANDIES = ['🔴', '🔵', '🟢', '🟡', '🟣', '🟠'];
 
-export default function Match3({ gameState, setGameState, onWin }) {
-<<<<<<< HEAD
-  const [board, setBoard] = useState(gameState.board || Array.from({ length: WIDTH * WIDTH }, () => CANDIES[Math.floor(Math.random() * CANDIES.length)]));
-  const [selected, setSelected] = useState(null);
-
-  const swap = (i1, i2) => {
-    const newBoard = [...board];
-    const temp = newBoard[i1];
-    newBoard[i1] = newBoard[i2];
-    newBoard[i2] = temp;
-    
-    // Simple logic check for match (horizontal/vertical)
-    if (checkMatches(newBoard)) {
-        setBoard(newBoard);
-        onWin(30);
-    } else {
-        // Swap back if no match
-        setBoard([...board]);
-    }
-  };
-
-  const checkMatches = (squares) => {
-    let matched = false;
-    // Simple 3-in-a-row check
-    for (let i = 0; i < squares.length; i++) {
-        // Horizontal
-        if (i % WIDTH < WIDTH - 2 && squares[i] === squares[i+1] && squares[i] === squares[i+2]) matched = true;
-        // Vertical
-        if (i < WIDTH * (WIDTH - 2) && squares[i] === squares[i+WIDTH] && squares[i] === squares[i+WIDTH*2]) matched = true;
-    }
-    return matched;
-  };
-
-  const handleTileClick = (i) => {
-    if (selected === null) setSelected(i);
-    else {
-      const isAdjacent = Math.abs(selected - i) === 1 || Math.abs(selected - i) === WIDTH;
-      if (isAdjacent) swap(selected, i);
-=======
   const [board, setBoard] = useState(gameState.board || []);
   const [selected, setSelected] = useState(null);
 
   // Initialize board if empty
   useEffect(() => {
-    if (board.length === 0) {
+    if (board.length !== WIDTH * WIDTH) {
       const initialBoard = Array.from({ length: WIDTH * WIDTH }, () => CANDIES[Math.floor(Math.random() * CANDIES.length)]);
       setBoard(initialBoard);
     }
-  }, []);
+  }, [WIDTH]);
 
   const checkForMatches = useCallback(() => {
     let matchedIndices = new Set();
@@ -85,7 +43,7 @@ export default function Match3({ gameState, setGameState, onWin }) {
       return true;
     }
     return false;
-  }, [board, onWin]);
+  }, [board, onWin, WIDTH]);
 
   const moveIntoSquareBelow = useCallback(() => {
     const newBoard = [...board];
@@ -111,7 +69,7 @@ export default function Match3({ gameState, setGameState, onWin }) {
     if (moved) {
         setBoard(newBoard);
     }
-  }, [board]);
+  }, [board, WIDTH]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -141,36 +99,11 @@ export default function Match3({ gameState, setGameState, onWin }) {
         newBoard[i] = temp;
         setBoard(newBoard);
       }
->>>>>>> 80fe5ea
       setSelected(null);
     }
   };
 
   useEffect(() => {
-<<<<<<< HEAD
-    setGameState({ board });
-  }, [board, setGameState]);
-
-  return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: `repeat(${WIDTH}, 1fr)`, gap: '4px' }}>
-      {board.map((candy, i) => (
-        <Paper
-          key={i}
-          onClick={() => handleTileClick(i)}
-          sx={{
-            width: 45, height: 45,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer',
-            bgcolor: selected === i ? 'primary.light' : 'background.paper',
-            fontSize: '1.5rem',
-            border: '2px solid transparent',
-            transition: 'all 0.2s',
-            '&:hover': { transform: 'scale(1.1)', bgcolor: 'rgba(255,255,255,0.05)' }
-          }}
-        >
-          {candy}
-        </Paper>
-=======
     if (board.length > 0) setGameState({ board });
   }, [board, setGameState]);
 
@@ -189,11 +122,12 @@ export default function Match3({ gameState, setGameState, onWin }) {
           <Paper
             onClick={() => handleTileClick(i)}
             sx={{
-              width: 48, height: 48,
+              width: WIDTH > 8 ? 35 : 48, 
+              height: WIDTH > 8 ? 35 : 48,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer',
               bgcolor: selected === i ? 'rgba(33, 150, 243, 0.3)' : 'background.paper',
-              fontSize: '1.8rem',
+              fontSize: WIDTH > 8 ? '1.2rem' : '1.8rem',
               borderRadius: 2,
               border: selected === i ? '2px solid #2196f3' : '1px solid rgba(255,255,255,0.1)',
               boxShadow: selected === i ? '0 0 15px #2196f3' : 'none',
@@ -206,7 +140,6 @@ export default function Match3({ gameState, setGameState, onWin }) {
             {candy}
           </Paper>
         </Zoom>
->>>>>>> 80fe5ea
       ))}
     </Box>
   );

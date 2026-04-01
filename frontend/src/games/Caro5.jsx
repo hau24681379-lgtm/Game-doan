@@ -4,11 +4,9 @@ import { Box, Paper, Grid, Button, Typography, IconButton } from '@mui/material'
 const GRID_SIZE = 15;
 const WIN_COUNT = 5;
 
-<<<<<<< HEAD
-export default function Caro5({ gameState, setGameState, onWin }) {
-=======
-export default function Caro5({ gameState, setGameState, onWin, setTimerActive, setIsGameOver }) {
->>>>>>> 80fe5ea
+export default function Caro5({ game, gameState, setGameState, onWin, setTimerActive, setIsGameOver }) {
+  const config = typeof game?.config === 'string' ? JSON.parse(game.config || '{}') : (game?.config || {});
+  const GRID_SIZE = config.grid_size || 15;
   const board = gameState.board || Array(GRID_SIZE * GRID_SIZE).fill(null);
   const isXNext = gameState.isXNext ?? true;
   const [winner, setWinner] = useState(null);
@@ -45,11 +43,8 @@ export default function Caro5({ gameState, setGameState, onWin, setTimerActive, 
     if (win) {
        setWinner(win);
        onWin(100);
-<<<<<<< HEAD
-=======
        setTimerActive(false);
        setIsGameOver(true);
->>>>>>> 80fe5ea
        return;
     }
 
@@ -64,11 +59,8 @@ export default function Caro5({ gameState, setGameState, onWin, setTimerActive, 
       if (winO) {
          setWinner(winO);
          onWin(-50);
-<<<<<<< HEAD
-=======
          setTimerActive(false);
          setIsGameOver(true);
->>>>>>> 80fe5ea
       }
     }, 500);
   };

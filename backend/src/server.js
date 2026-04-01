@@ -5,12 +5,18 @@ import db from './db/db.js';
 import userRoutes from './routes/user.route.js';
 import gameRoutes from './routes/game.route.js';
 import interactionRoutes from './routes/interaction.route.js';
-<<<<<<< HEAD
-=======
 import socialRoutes from './routes/social.route.js';
->>>>>>> 80fe5ea
 
-dotenv.config();
+import adminRoutes from './routes/admin.route.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, '../.env') });
+
+console.log('JWT_SECRET Loaded:', process.env.JWT_SECRET ? 'YES' : 'NO');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,10 +39,8 @@ app.get('/api/health', async (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/interactions', interactionRoutes);
-<<<<<<< HEAD
-=======
 app.use('/api/social', socialRoutes);
->>>>>>> 80fe5ea
+app.use('/api/admin', adminRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);

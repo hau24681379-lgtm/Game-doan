@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import React, { useState, useEffect } from 'react';
-import { Box, Paper, Typography, Button, Divider, Rating, TextField, Stack } from '@mui/material';
-=======
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Paper, Typography, Button, Divider, Rating, TextField, Stack, Snackbar, Alert, CircularProgress } from '@mui/material';
->>>>>>> 80fe5ea
 import TimerIcon from '@mui/icons-material/Timer';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
 import SaveIcon from '@mui/icons-material/Save';
@@ -14,13 +9,6 @@ import axios from 'axios';
 const API_BASE_URL = 'http://localhost:3000/api';
 
 export default function GameContainer({ game, user, onBack, children, score, setScore, gameState, setGameState }) {
-<<<<<<< HEAD
-  const [timeLeft, setTimeLeft] = useState(60); // Default 60 seconds
-  const [timerActive, setTimerActive] = useState(true);
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState('');
-  const [reviews, setReviews] = useState([]);
-=======
   const [timeLeft, setTimeLeft] = useState(60); 
   const [timerActive, setTimerActive] = useState(true);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -30,7 +18,6 @@ export default function GameContainer({ game, user, onBack, children, score, set
   const [reviews, setReviews] = useState([]);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
   const [lastSaved, setLastSaved] = useState(null);
->>>>>>> 80fe5ea
 
   // Timer logic
   useEffect(() => {
@@ -39,24 +26,12 @@ export default function GameContainer({ game, user, onBack, children, score, set
       timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
     } else if (timeLeft === 0) {
       setTimerActive(false);
-<<<<<<< HEAD
-      alert('Hết thời gian!');
-=======
       setIsGameOver(true);
       setSnackbar({ open: true, message: 'Hết thời gian chơi rồi!', severity: 'warning' });
->>>>>>> 80fe5ea
     }
     return () => clearInterval(timer);
   }, [timerActive, timeLeft]);
 
-<<<<<<< HEAD
-  // Fetch reviews
-  useEffect(() => {
-    fetchReviews();
-  }, [game]);
-
-  const fetchReviews = async () => {
-=======
   // Auto-save logic
   useEffect(() => {
     if (!user || isGameOver) return;
@@ -69,18 +44,10 @@ export default function GameContainer({ game, user, onBack, children, score, set
   // Fetch reviews logic
   const fetchReviews = useCallback(async () => {
     if (!game?.id) return;
->>>>>>> 80fe5ea
     try {
       const res = await axios.get(`${API_BASE_URL}/interactions/reviews/${game.id}`);
       setReviews(res.data);
     } catch (e) {
-<<<<<<< HEAD
-      console.error(e);
-    }
-  };
-
-  const handleSave = async () => {
-=======
       console.error('Failed to fetch reviews:', e);
     }
   }, [game?.id]);
@@ -100,7 +67,6 @@ export default function GameContainer({ game, user, onBack, children, score, set
 
   const handleSave = async (isAuto = false) => {
     if (!user) return;
->>>>>>> 80fe5ea
     try {
       await axios.post(`${API_BASE_URL}/interactions/sessions`, {
         user_id: user.id,
@@ -109,11 +75,6 @@ export default function GameContainer({ game, user, onBack, children, score, set
         game_state: gameState,
         seconds_left: timeLeft
       });
-<<<<<<< HEAD
-      alert('Đã lưu ván game!');
-    } catch (e) {
-      alert('Lưu game thất bại: ' + e.message);
-=======
       setLastSaved(new Date().toLocaleTimeString());
       setSnackbar({ 
         open: true, 
@@ -122,28 +83,17 @@ export default function GameContainer({ game, user, onBack, children, score, set
       });
     } catch (e) {
       if (!isAuto) setSnackbar({ open: true, message: 'Lưu game thất bại: ' + e.message, severity: 'error' });
->>>>>>> 80fe5ea
     }
   };
 
   const handleLoad = async () => {
-<<<<<<< HEAD
-=======
     if (!user) return;
->>>>>>> 80fe5ea
     try {
       const res = await axios.get(`${API_BASE_URL}/interactions/sessions`, {
         params: { user_id: user.id, game_id: game.id }
       });
       const data = res.data;
       setScore(data.score);
-<<<<<<< HEAD
-      setGameState(JSON.parse(data.game_state));
-      setTimeLeft(data.seconds_left);
-      alert('Đã tải lại ván game cũ!');
-    } catch (e) {
-      alert('Không tìm thấy ván game đã lưu.');
-=======
       const parsedState = typeof data.game_state === 'string' ? JSON.parse(data.game_state) : data.game_state;
       setGameState(parsedState);
       setTimeLeft(data.seconds_left);
@@ -153,15 +103,11 @@ export default function GameContainer({ game, user, onBack, children, score, set
       setSnackbar({ open: true, message: 'Đã tải lại ván game cũ thành công!', severity: 'info' });
     } catch (e) {
       setSnackbar({ open: true, message: 'Không tìm thấy ván game đã lưu.', severity: 'error' });
->>>>>>> 80fe5ea
     }
   };
 
   const submitReview = async () => {
-<<<<<<< HEAD
-=======
     if (!user) return;
->>>>>>> 80fe5ea
     try {
       await axios.post(`${API_BASE_URL}/interactions/reviews`, {
         user_id: user.id,
@@ -172,26 +118,6 @@ export default function GameContainer({ game, user, onBack, children, score, set
       setRating(0);
       setComment('');
       fetchReviews();
-<<<<<<< HEAD
-      alert('Cảm ơn bạn đã đánh giá!');
-    } catch (e) {
-      alert('Lỗi khi gửi đánh giá');
-    }
-  };
-
-  return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', mt: 2 }}>
-      <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
-        {/* Header Stats */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-          <Stack direction="row" spacing={1} alignItems="center">
-            <TimerIcon color="primary" />
-            <Typography variant="h6">Thời gian: {timeLeft}s</Typography>
-          </Stack>
-          <Stack direction="row" spacing={1} alignItems="center">
-            <ScoreboardIcon color="secondary" />
-            <Typography variant="h6">Điểm: {score}</Typography>
-=======
       setSnackbar({ open: true, message: 'Cảm ơn bạn đã đánh giá!', severity: 'success' });
     } catch (e) {
       setSnackbar({ open: true, message: 'Lỗi khi gửi đánh giá', severity: 'error' });
@@ -218,56 +144,11 @@ export default function GameContainer({ game, user, onBack, children, score, set
           <Stack direction="row" spacing={1} alignItems="center" sx={{ bgcolor: 'rgba(255, 152, 0, 0.1)', px: 2, py: 1, borderRadius: 3 }}>
             <ScoreboardIcon color="warning" />
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{score}</Typography>
->>>>>>> 80fe5ea
           </Stack>
         </Box>
 
         <Divider sx={{ mb: 3 }} />
 
-<<<<<<< HEAD
-        {/* Game Content */}
-        <Box sx={{ minHeight: 400, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          {children}
-        </Box>
-
-        <Divider sx={{ my: 3 }} />
-
-        {/* Global Controls */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 4 }}>
-          <Button variant="outlined" startIcon={<SaveIcon />} onClick={handleSave}>Lưu Game</Button>
-          <Button variant="outlined" startIcon={<RestorePageIcon />} onClick={handleLoad}>Tải Lại</Button>
-          <Button variant="contained" color="error" onClick={onBack}>Thoát Game</Button>
-        </Box>
-
-        {/* Reviews Section */}
-        <Box sx={{ mt: 5 }}>
-          <Typography variant="h6" gutterBottom>Đánh giá trò chơi</Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 4 }}>
-            <Rating value={rating} onChange={(e, val) => setRating(val)} />
-            <TextField 
-              fullWidth 
-              multiline 
-              rows={2} 
-              placeholder="Nhận xét của bạn..." 
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-            />
-            <Button variant="contained" sx={{ alignSelf: 'flex-start' }} onClick={submitReview}>Gửi đánh giá</Button>
-          </Box>
-
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>Nhận xét từ người chơi khác:</Typography>
-          <Stack spacing={2} sx={{ mt: 2 }}>
-            {reviews.map(rev => (
-              <Paper key={rev.id} variant="outlined" sx={{ p: 2 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>{rev.username}</Typography>
-                <Rating value={rev.rating} size="small" readOnly />
-                <Typography variant="body2">{rev.comment}</Typography>
-              </Paper>
-            ))}
-          </Stack>
-        </Box>
-      </Paper>
-=======
         {/* Game Content Box */}
         <Box sx={{ 
           minHeight: 450, 
@@ -360,7 +241,6 @@ export default function GameContainer({ game, user, onBack, children, score, set
           {snackbar.message}
         </Alert>
       </Snackbar>
->>>>>>> 80fe5ea
     </Box>
   );
 }

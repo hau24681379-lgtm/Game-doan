@@ -18,12 +18,9 @@ import Match3 from '../games/Match3';
 import MemoryGame from '../games/MemoryGame';
 import FreeDraw from '../games/FreeDraw';
 
-<<<<<<< HEAD
-=======
 import { createTheme } from '@mui/material/styles';
 import { UserProvider, useUser } from '../context/UserContext';
 
->>>>>>> 80fe5ea
 const API_BASE_URL = 'http://localhost:3000/api';
 
 // Map slugs to components
@@ -47,24 +44,22 @@ export default function Home() {
   const [score, setScore] = useState(0);
   const [gameState, setGameState] = useState({});
 
-<<<<<<< HEAD
-  // Dummy user for session saving (assuming player 1)
-  const user = { id: 3, username: 'player1' };
-=======
   const { user } = useUser();
->>>>>>> 80fe5ea
 
   // Fetch games from Backend
   useEffect(() => {
-    axios.get(`${API_BASE_URL}/games`)
-      .then(res => {
-        setGames(res.data);
-        setLoading(false);
-      })
-      .catch(err => {
+    const fetchGames = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/games`);
+        // Lọc các game đang hoạt động
+        setGames(res.data.filter(g => g.is_active));
+      } catch (err) {
         console.error('Error fetching games:', err);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+    fetchGames();
   }, []);
   
   const handleLeft = () => setSelectedIndex(prev => (prev > 0 ? prev - 1 : games.length - 1));
@@ -119,6 +114,7 @@ export default function Home() {
       >
         {Component ? (
             <Component 
+                game={gameData}
                 gameState={gameState} 
                 setGameState={setGameState} 
                 onWin={(points) => setScore(prev => prev + points)} 

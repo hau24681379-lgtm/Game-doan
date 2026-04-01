@@ -1,17 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Paper } from '@mui/material';
 
-const GRID_SIZE = 15;
-const INITIAL_SNAKE = [[7, 7], [7, 8], [7, 9]];
-const INITIAL_FOOD = [5, 5];
+export default function SnakeGame({ game, gameState, setGameState, onWin, setTimerActive, setIsGameOver }) {
+  // Lấy cấu hình từ Admin hoặc dùng mặc định
+  const config = typeof game?.config === 'string' ? JSON.parse(game.config || '{}') : (game?.config || {});
+  const GRID_SIZE = config.grid_size || 15;
+  const SPEED = config.speed || 200;
 
-<<<<<<< HEAD
-export default function SnakeGame({ gameState, setGameState, onWin }) {
-=======
-export default function SnakeGame({ gameState, setGameState, onWin, setTimerActive, setIsGameOver }) {
->>>>>>> 80fe5ea
-  const [snake, setSnake] = useState(gameState.snake || INITIAL_SNAKE);
-  const [food, setFood] = useState(gameState.food || INITIAL_FOOD);
+  const [snake, setSnake] = useState(gameState.snake || [[7, 7], [7, 8], [7, 9]]);
+  const [food, setFood] = useState(gameState.food || [5, 5]);
   const [direction, setDirection] = useState([0, -1]); // Up
   const [gameOver, setGameOver] = useState(false);
 
@@ -27,11 +24,8 @@ export default function SnakeGame({ gameState, setGameState, onWin, setTimerActi
     ) {
       setGameOver(true);
       onWin(-10);
-<<<<<<< HEAD
-=======
       setTimerActive(false);
       setIsGameOver(true);
->>>>>>> 80fe5ea
       return;
     }
 
@@ -47,12 +41,7 @@ export default function SnakeGame({ gameState, setGameState, onWin, setTimerActi
       setSnake(newSnake);
       setGameState({ snake: newSnake, food: food });
     }
-<<<<<<< HEAD
-    setSnake(newSnake);
-  }, [snake, direction, food, gameOver, onWin, setGameState]);
-=======
-  }, [snake, direction, food, gameOver, onWin, setGameState, setTimerActive, setIsGameOver]);
->>>>>>> 80fe5ea
+  }, [snake, direction, food, gameOver, onWin, setGameState, setTimerActive, setIsGameOver, GRID_SIZE]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -69,9 +58,9 @@ export default function SnakeGame({ gameState, setGameState, onWin, setTimerActi
   }, [direction]);
 
   useEffect(() => {
-    const interval = setInterval(moveSnake, 200);
+    const interval = setInterval(moveSnake, SPEED);
     return () => clearInterval(interval);
-  }, [moveSnake]);
+  }, [moveSnake, SPEED]);
 
   return (
     <Box>

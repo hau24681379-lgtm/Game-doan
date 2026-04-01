@@ -1,10 +1,5 @@
 import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-<<<<<<< HEAD
-import { AppBar, Toolbar, Typography, Button, Container, Box, IconButton, useTheme } from '@mui/material';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
-=======
 import { AppBar, Toolbar, Typography, Button, Container, Box, IconButton, useTheme, Stack, Avatar } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
@@ -13,23 +8,10 @@ import PeopleIcon from '@mui/icons-material/People';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { useUser } from '../context/UserContext';
->>>>>>> 80fe5ea
 
 export default function ClientLayout({ toggleColorMode }) {
   const theme = useTheme();
   const navigate = useNavigate();
-<<<<<<< HEAD
-
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary' }}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={() => navigate('/')}>
-            🎮 Game Store
-          </Typography>
-          <Button color="inherit" onClick={() => navigate('/login')}>Login</Button>
-          <IconButton sx={{ ml: 1 }} onClick={toggleColorMode} color="inherit">
-=======
   const { user } = useUser();
 
   return (
@@ -65,23 +47,16 @@ export default function ClientLayout({ toggleColorMode }) {
           )}
           
           <IconButton onClick={toggleColorMode} color="inherit">
->>>>>>> 80fe5ea
             {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
           </IconButton>
         </Toolbar>
       </AppBar>
-<<<<<<< HEAD
-      <Container component="main" sx={{ flexGrow: 1, py: 4 }}>
-        <Outlet />
-      </Container>
-=======
       <Container component="main" sx={{ flexGrow: 1, py: 4, maxWidth: '1200px !important' }}>
         <Outlet />
       </Container>
       <Box component="footer" sx={{ py: 3, textAlign: 'center', opacity: 0.5, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <Typography variant="body2">© 2026 Game Store Platform - Advanced Final Project</Typography>
       </Box>
->>>>>>> 80fe5ea
     </Box>
   );
 }
