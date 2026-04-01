@@ -16,6 +16,7 @@ Dự án này đã được cấu hình sử dụng cơ sở dữ liệu Supabas
 
 ## Tài khoản mẫu
 | Quyền hạn | Username | Password |
+|**|**|**|
 | **Admin** | admin | 123 |
 | **Admin** | admin2 | 123 |
 | **User** | player1 | 123 |
