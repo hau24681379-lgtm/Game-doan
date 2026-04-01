@@ -4,7 +4,11 @@ import { Box, Paper, Typography } from '@mui/material';
 const GRID_SIZE = 10;
 const WIN_COUNT = 4;
 
+<<<<<<< HEAD
 export default function Caro4({ gameState, setGameState, onWin }) {
+=======
+export default function Caro4({ gameState, setGameState, onWin, setTimerActive, setIsGameOver }) {
+>>>>>>> 80fe5ea
   const board = gameState.board || Array(GRID_SIZE * GRID_SIZE).fill(null);
   const [winner, setWinner] = React.useState(null);
 
@@ -36,9 +40,18 @@ export default function Caro4({ gameState, setGameState, onWin }) {
     newBoard[i] = 'X';
     setGameState({ board: newBoard });
 
+<<<<<<< HEAD
     if (checkWinner(newBoard)) {
       setWinner('X');
       onWin(50);
+=======
+    const winX = checkWinner(newBoard);
+    if (winX) {
+      setWinner('X');
+      onWin(50);
+      setTimerActive(false);
+      setIsGameOver(true);
+>>>>>>> 80fe5ea
       return;
     }
 
@@ -52,6 +65,11 @@ export default function Caro4({ gameState, setGameState, onWin }) {
         if (checkWinner(newBoard)) {
            setWinner('O');
            onWin(-20);
+<<<<<<< HEAD
+=======
+           setTimerActive(false);
+           setIsGameOver(true);
+>>>>>>> 80fe5ea
         }
     }, 500);
   };

@@ -17,6 +17,7 @@ Dự án này đã được cấu hình sử dụng cơ sở dữ liệu Supabas
 ## Tài khoản mẫu
 | Quyền hạn | Username | Password |
 | :--- | :--- | :--- |
+<<<<<<< HEAD
 | **Admin** | admin | admin123 |
 | **Admin** | admin2 | admin456 |
 | **User** | player1 | player1 |
@@ -26,3 +27,14 @@ Dự án này đã được cấu hình sử dụng cơ sở dữ liệu Supabas
 | **User** | player5 | player5 |
 | **User** | player6 | player6 |
 | **User** | player7 | player7 |
+=======
+| **Admin** | admin | 123 |
+| **Admin** | admin2 | 123 |
+| **User** | player1 | 123 |
+| **User** | player2 | 123 |
+| **User** | player3 | 123|
+| **User** | player4 | 123 |
+| **User** | player5 | 123 |
+| **User** | player6 | 123 |
+| **User** | player7 | 123 |
+>>>>>>> 80fe5ea

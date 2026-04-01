@@ -5,6 +5,7 @@ export const seed = async function(knex) {
   await knex('users').del();
   
   const saltRounds = 10;
+<<<<<<< HEAD
   const hashedAdmin1 = await bcrypt.hash('admin123', saltRounds);
   const hashedAdmin2 = await bcrypt.hash('admin456', saltRounds);
   const hashedPlayer1 = await bcrypt.hash('player1', saltRounds);
@@ -25,5 +26,19 @@ export const seed = async function(knex) {
     { id: 7, username: 'player5', password: hashedPlayer5, role: 'client' },
     { id: 8, username: 'player6', password: hashedPlayer6, role: 'client' },
     { id: 9, username: 'player7', password: hashedPlayer7, role: 'client' }
+=======
+  const commonHash = await bcrypt.hash('123', saltRounds);
+
+  await knex('users').insert([
+    { id: 1, username: 'admin', password: commonHash, role: 'admin' },
+    { id: 2, username: 'admin2', password: commonHash, role: 'admin' },
+    { id: 3, username: 'player1', password: commonHash, role: 'client' },
+    { id: 4, username: 'player2', password: commonHash, role: 'client' },
+    { id: 5, username: 'player3', password: commonHash, role: 'client' },
+    { id: 6, username: 'player4', password: commonHash, role: 'client' },
+    { id: 7, username: 'player5', password: commonHash, role: 'client' },
+    { id: 8, username: 'player6', password: commonHash, role: 'client' },
+    { id: 9, username: 'player7', password: commonHash, role: 'client' }
+>>>>>>> 80fe5ea
   ]);
 };

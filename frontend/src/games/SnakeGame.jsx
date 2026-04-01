@@ -5,7 +5,11 @@ const GRID_SIZE = 15;
 const INITIAL_SNAKE = [[7, 7], [7, 8], [7, 9]];
 const INITIAL_FOOD = [5, 5];
 
+<<<<<<< HEAD
 export default function SnakeGame({ gameState, setGameState, onWin }) {
+=======
+export default function SnakeGame({ gameState, setGameState, onWin, setTimerActive, setIsGameOver }) {
+>>>>>>> 80fe5ea
   const [snake, setSnake] = useState(gameState.snake || INITIAL_SNAKE);
   const [food, setFood] = useState(gameState.food || INITIAL_FOOD);
   const [direction, setDirection] = useState([0, -1]); // Up
@@ -23,6 +27,11 @@ export default function SnakeGame({ gameState, setGameState, onWin }) {
     ) {
       setGameOver(true);
       onWin(-10);
+<<<<<<< HEAD
+=======
+      setTimerActive(false);
+      setIsGameOver(true);
+>>>>>>> 80fe5ea
       return;
     }
 
@@ -38,8 +47,12 @@ export default function SnakeGame({ gameState, setGameState, onWin }) {
       setSnake(newSnake);
       setGameState({ snake: newSnake, food: food });
     }
+<<<<<<< HEAD
     setSnake(newSnake);
   }, [snake, direction, food, gameOver, onWin, setGameState]);
+=======
+  }, [snake, direction, food, gameOver, onWin, setGameState, setTimerActive, setIsGameOver]);
+>>>>>>> 80fe5ea
 
   useEffect(() => {
     const handleKeyDown = (e) => {

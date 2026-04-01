@@ -5,6 +5,10 @@ import db from './db/db.js';
 import userRoutes from './routes/user.route.js';
 import gameRoutes from './routes/game.route.js';
 import interactionRoutes from './routes/interaction.route.js';
+<<<<<<< HEAD
+=======
+import socialRoutes from './routes/social.route.js';
+>>>>>>> 80fe5ea
 
 dotenv.config();
 
@@ -29,6 +33,10 @@ app.get('/api/health', async (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/interactions', interactionRoutes);
+<<<<<<< HEAD
+=======
+app.use('/api/social', socialRoutes);
+>>>>>>> 80fe5ea
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);

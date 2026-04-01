@@ -18,6 +18,12 @@ import Match3 from '../games/Match3';
 import MemoryGame from '../games/MemoryGame';
 import FreeDraw from '../games/FreeDraw';
 
+<<<<<<< HEAD
+=======
+import { createTheme } from '@mui/material/styles';
+import { UserProvider, useUser } from '../context/UserContext';
+
+>>>>>>> 80fe5ea
 const API_BASE_URL = 'http://localhost:3000/api';
 
 // Map slugs to components
@@ -41,8 +47,12 @@ export default function Home() {
   const [score, setScore] = useState(0);
   const [gameState, setGameState] = useState({});
 
+<<<<<<< HEAD
   // Dummy user for session saving (assuming player 1)
   const user = { id: 3, username: 'player1' };
+=======
+  const { user } = useUser();
+>>>>>>> 80fe5ea
 
   // Fetch games from Backend
   useEffect(() => {

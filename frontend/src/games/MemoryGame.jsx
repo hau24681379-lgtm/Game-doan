@@ -4,9 +4,15 @@ import { Box, Paper, Typography, Fade } from '@mui/material';
 const ICONS = ['🍎', '🍌', '🍒', '🥑', '🍍', '🍑', '🍇', '🍉'];
 const CARDS = [...ICONS, ...ICONS];
 
+<<<<<<< HEAD
 export default function MemoryGame({ gameState, setGameState, onWin }) {
   const [cards, setCards] = useState(gameState.cards || shuffle(CARDS));
   const [flipped, setFlipped] = useState(gameState.flipped || []);
+=======
+export default function MemoryGame({ gameState, setGameState, onWin, setTimerActive, setIsGameOver }) {
+  const [cards, setCards] = useState(gameState.cards || shuffle(CARDS));
+  const [flipped, setFlipped] = useState([]);
+>>>>>>> 80fe5ea
   const [matched, setMatched] = useState(gameState.matched || []);
   const [disabled, setDisabled] = useState(false);
 
@@ -27,10 +33,24 @@ export default function MemoryGame({ gameState, setGameState, onWin }) {
     if (newFlipped.length === 2) {
       setDisabled(true);
       if (cards[newFlipped[0]] === cards[newFlipped[1]]) {
+<<<<<<< HEAD
         setMatched([...matched, ...newFlipped]);
         onWin(20);
         setFlipped([]);
         setDisabled(false);
+=======
+        const newMatched = [...matched, ...newFlipped];
+        setMatched(newMatched);
+        onWin(20);
+        setFlipped([]);
+        setDisabled(false);
+        setGameState({ cards, matched: newMatched });
+
+        if (newMatched.length === CARDS.length) {
+          setTimerActive(false);
+          setIsGameOver(true);
+        }
+>>>>>>> 80fe5ea
       } else {
         setTimeout(() => {
           setFlipped([]);
@@ -41,10 +61,14 @@ export default function MemoryGame({ gameState, setGameState, onWin }) {
   };
 
   useEffect(() => {
+<<<<<<< HEAD
      setGameState({ cards, matched });
      if (matched.length === CARDS.length) {
         alert('Chúc mừng! Bạn đã hoàn thành cờ trí nhớ.');
      }
+=======
+    if (matched.length > 0) setGameState({ cards, matched });
+>>>>>>> 80fe5ea
   }, [matched, cards, setGameState]);
 
   return (

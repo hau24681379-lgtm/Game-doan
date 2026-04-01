@@ -30,16 +30,32 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   const { username, password } = req.body;
+<<<<<<< HEAD
+=======
+  console.log(`Đang thử đăng nhập cho user: ${username}`);
+>>>>>>> 80fe5ea
 
   try {
     const user = await db('users').where({ username }).first();
     if (!user) {
+<<<<<<< HEAD
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
+=======
+      console.log(`User ${username} không tồn tại trong DB.`);
+      return res.status(401).json({ error: 'Tài khoản không tồn tại' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log(`Kết quả so khớp mật khẩu cho ${username}: ${isMatch}`);
+    
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Mật khẩu không chính xác' });
+>>>>>>> 80fe5ea
     }
 
     const token = jwt.sign(
@@ -48,8 +64,15 @@ export const login = async (req, res) => {
       { expiresIn: '1d' }
     );
 
+<<<<<<< HEAD
     res.json({ message: 'Login successful', token, user: { id: user.id, username: user.username, role: user.role } });
   } catch (error) {
     res.status(500).json({ error: 'Login failed', details: error.message });
+=======
+    res.json({ message: 'Đăng nhập thành công', token, user: { id: user.id, username: user.username, role: user.role } });
+  } catch (error) {
+    console.error('Lỗi login:', error);
+    res.status(500).json({ error: 'Lỗi máy chủ khi đăng nhập', details: error.message });
+>>>>>>> 80fe5ea
   }
 };
