@@ -4,14 +4,20 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import { getDesignTokens } from './theme';
 import { createTheme } from '@mui/material/styles';
 import { UserProvider, useUser } from './context/UserContext';
+import axios from 'axios';
+
+// Global API Key Setting
+axios.defaults.headers.common['x-api-key'] = 'LTUDWEB2026_SECRETKEY';
 
 import ClientLayout from './layouts/ClientLayout';
 import AdminLayout from './layouts/AdminLayout';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Social from './pages/Social';
 import Ranking from './pages/Ranking';
+import ApiDocs from './pages/ApiDocs';
 
 // Placeholder Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -36,12 +42,14 @@ function AppContent() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           
           <Route path="/" element={<ClientLayout toggleColorMode={toggleColorMode} />}>
             <Route index element={<Home />} />
             <Route path="profile" element={<Profile />} />
             <Route path="social" element={<Social />} />
             <Route path="ranking" element={<Ranking />} />
+            <Route path="api-docs" element={<ApiDocs />} />
           </Route>
           
           <Route path="/admin" element={

@@ -45,8 +45,11 @@ export const respondToRequest = async (req, res) => {
 
 export const getFriendsList = async (req, res) => {
   const { user_id } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+  const offset = (page - 1) * limit;
+
   try {
-    const list = await db('friends')
+    const listQuery = db('friends')
       .join('users', function() {
         this.on('friends.friend_id', '=', 'users.id').orOn('friends.user_id', '=', 'users.id');
       })
@@ -54,47 +57,57 @@ export const getFriendsList = async (req, res) => {
         this.where('friends.user_id', user_id).orWhere('friends.friend_id', user_id);
       })
       .whereNot('users.id', user_id)
-      .where('friends.status', 'accepted')
-      .select('users.id', 'users.username', 'users.avatar_url', 'friends.id as relationship_id');
-    res.json(list);
+      .where('friends.status', 'accepted');
+
+    const total = await listQuery.clone().count('users.id as total').first();
+    const list = await listQuery.select('users.id', 'users.username', 'users.avatar_url', 'friends.id as relationship_id')
+      .limit(limit).offset(offset);
+
+    res.json({ data: list, total: parseInt(total.total) });
   } catch (e) {
-    res.status(500).json({ error: 'Failed to fetch friends', details: e.message });
+    res.status(500).json({ error: 'Failed' });
   }
 };
 
-// --- MESSAGES ---
+export const getInbox = async (req, res) => {
+  const { user_id } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+  const offset = (page - 1) * limit;
+
+  try {
+    const msgQuery = db('messages').where({ receiver_id: user_id });
+    const total = await msgQuery.clone().count('id as total').first();
+    const msgs = await msgQuery
+      .join('users', 'messages.sender_id', 'users.id')
+      .select('messages.*', 'users.username as sender_name', 'users.avatar_url as sender_avatar')
+      .orderBy('messages.created_at', 'desc')
+      .limit(limit).offset(offset);
+
+    res.json({ data: msgs, total: parseInt(total.total) });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed' });
+  }
+};
+
 export const sendMessage = async (req, res) => {
   const { sender_id, receiver_id, content } = req.body;
   try {
     const [id] = await db('messages').insert({ sender_id, receiver_id, content }).returning('id');
     res.status(201).json({ message: 'Message sent', id });
   } catch (e) {
-    res.status(500).json({ error: 'Failed to send message', details: e.message });
-  }
-};
-
-export const getInbox = async (req, res) => {
-  const { user_id } = req.params;
-  try {
-    const msgs = await db('messages')
-      .join('users', 'messages.sender_id', 'users.id')
-      .where({ receiver_id: user_id })
-      .select('messages.*', 'users.username as sender_name', 'users.avatar_url as sender_avatar')
-      .orderBy('messages.created_at', 'desc');
-    res.json(msgs);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to fetch inbox', details: e.message });
+    res.status(500).json({ error: 'Failed to send message' });
   }
 };
 
 export const searchUsers = async (req, res) => {
-  const { q } = req.query;
+  const { q, page = 1, limit = 10 } = req.query;
+  const offset = (page - 1) * limit;
+
   try {
-    const users = await db('users')
-      .where('username', 'ilike', `%${q}%`)
-      .select('id', 'username', 'avatar_url')
-      .limit(10);
-    res.json(users);
+    const query = db('users').where('username', 'ilike', `%${q}%`);
+    const total = await query.clone().count('id as total').first();
+    const users = await query.select('id', 'username', 'avatar_url').limit(limit).offset(offset);
+    res.json({ data: users, total: parseInt(total.total) });
   } catch (e) {
     res.status(500).json({ error: 'Search failed' });
   }

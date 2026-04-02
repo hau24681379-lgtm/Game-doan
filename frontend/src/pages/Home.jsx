@@ -65,6 +65,7 @@ export default function Home() {
   const handleLeft = () => setSelectedIndex(prev => (prev > 0 ? prev - 1 : games.length - 1));
   const handleRight = () => setSelectedIndex(prev => (prev < games.length - 1 ? prev + 1 : 0));
   const handleEnter = () => {
+    if (games.length === 0) return;
     setScore(0);
     setGameState({});
     setInGame(true);

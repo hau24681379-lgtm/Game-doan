@@ -8,6 +8,7 @@ import interactionRoutes from './routes/interaction.route.js';
 import socialRoutes from './routes/social.route.js';
 
 import adminRoutes from './routes/admin.route.js';
+import { verifyApiKey } from './middleware/auth.middleware.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -25,7 +26,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Basic Health Check Route
+// Basic Health Check Route (Unprotected to debug server running)
 app.get('/api/health', async (req, res) => {
   try {
     const result = await db.raw('SELECT 1+1 AS result');
@@ -35,6 +36,8 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+// Global API Key Protection for all other /api routes
+app.use('/api', verifyApiKey);
 
 app.use('/api/users', userRoutes);
 app.use('/api/games', gameRoutes);

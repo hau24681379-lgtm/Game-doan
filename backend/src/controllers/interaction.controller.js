@@ -1,4 +1,5 @@
 import db from '../db/db.js';
+import { checkAndAward } from './achievement.controller.js';
 
 export const saveSession = async (req, res) => {
   const { user_id, game_id, score, game_state, seconds_left } = req.body;
@@ -9,13 +10,21 @@ export const saveSession = async (req, res) => {
       await db('game_sessions').where({ id: existing.id }).update({
         score, game_state: JSON.stringify(game_state), seconds_left, updated_at: db.fn.now()
       });
-      return res.json({ message: 'Session updated' });
+    } else {
+      await db('game_sessions').insert({
+        user_id, game_id, score, game_state: JSON.stringify(game_state), seconds_left
+      });
     }
+
+    // --- AUTO ACHIEVEMENT CHECK ---
+    // Check by score
+    await checkAndAward(user_id, 'score', score);
     
-    await db('game_sessions').insert({
-      user_id, game_id, score, game_state: JSON.stringify(game_state), seconds_left
-    });
-    res.status(201).json({ message: 'Session saved' });
+    // Check by game participation
+    const count = await db('game_sessions').where({ user_id }).count('id as val').first();
+    await checkAndAward(user_id, 'game_count', parseInt(count.val));
+
+    res.json({ message: 'Session saved and achievements checked' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to save session', details: error.message });
   }

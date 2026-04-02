@@ -1,15 +1,12 @@
 import db from '../db/db.js';
 
 export const getRanking = async (req, res) => {
-  const { type, user_id } = req.query;
+  const { type, user_id, page = 1, limit = 5 } = req.query;
+  const offset = (page - 1) * limit;
+
   try {
-    let query = db('game_sessions')
-      .join('users', 'game_sessions.user_id', 'users.id')
-      .select('users.username', 'users.avatar_url')
-      .sum('game_sessions.score as total_score')
-      .groupBy('users.id', 'users.username', 'users.avatar_url')
-      .orderBy('total_score', 'desc')
-      .limit(10);
+    let queryBase = db('game_sessions')
+      .join('users', 'game_sessions.user_id', 'users.id');
 
     if (type === 'friends' && user_id) {
        const friendIds = await db('friends')
@@ -19,15 +16,33 @@ export const getRanking = async (req, res) => {
          .where('status', 'accepted')
          .then(friends => friends.map(f => f.user_id === parseInt(user_id) ? f.friend_id : f.user_id));
        
-       // Include self in friend ranking
        friendIds.push(parseInt(user_id));
-       query = query.whereIn('game_sessions.user_id', friendIds);
+       queryBase = queryBase.whereIn('game_sessions.user_id', friendIds);
     } else if (type === 'personal' && user_id) {
-       query = query.where('game_sessions.user_id', user_id);
+       queryBase = queryBase.where('game_sessions.user_id', user_id);
     }
 
-    const ranking = await query;
-    res.json(ranking);
+    // Count total for pagination
+    const totalResult = await queryBase.clone().countDistinct('users.id as total').first();
+    const total = parseInt(totalResult.total);
+
+    const ranking = await queryBase
+      .select('users.id', 'users.username', 'users.avatar_url')
+      .sum('game_sessions.score as total_score')
+      .groupBy('users.id', 'users.username', 'users.avatar_url')
+      .orderBy('total_score', 'desc')
+      .limit(limit)
+      .offset(offset);
+
+    res.json({
+      data: ranking,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch ranking', details: error.message });
   }

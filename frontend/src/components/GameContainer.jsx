@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Paper, Typography, Button, Divider, Rating, TextField, Stack, Snackbar, Alert, CircularProgress } from '@mui/material';
+import { Box, Paper, Typography, Button, Divider, Rating, TextField, Stack, Snackbar, Alert, CircularProgress, Select, MenuItem } from '@mui/material';
 import TimerIcon from '@mui/icons-material/Timer';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
 import SaveIcon from '@mui/icons-material/Save';
 import RestorePageIcon from '@mui/icons-material/RestorePage';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import axios from 'axios';
+import { Joyride, STATUS } from 'react-joyride';
 
 const API_BASE_URL = 'http://localhost:3000/api';
 
 export default function GameContainer({ game, user, onBack, children, score, setScore, gameState, setGameState }) {
+  const [initialTime, setInitialTime] = useState(60);
   const [timeLeft, setTimeLeft] = useState(60); 
   const [timerActive, setTimerActive] = useState(true);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -19,27 +22,36 @@ export default function GameContainer({ game, user, onBack, children, score, set
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
   const [lastSaved, setLastSaved] = useState(null);
 
-  // Timer logic
-  useEffect(() => {
-    let timer;
-    if (timerActive && timeLeft > 0) {
-      timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
-    } else if (timeLeft === 0) {
-      setTimerActive(false);
-      setIsGameOver(true);
-      setSnackbar({ open: true, message: 'Hết thời gian chơi rồi!', severity: 'warning' });
-    }
-    return () => clearInterval(timer);
-  }, [timerActive, timeLeft]);
+  // Joyride states
+  const [{ run, steps }, setTourState] = useState({
+    run: false,
+    steps: [
+      {
+        target: '.tour-timer',
+        content: 'Đây là thời gian ván chơi. Hãy chú ý để không bị hết giờ!',
+        disableBeacon: true,
+      },
+      {
+        target: '.tour-score',
+        content: 'Đây là tổng điểm của bạn tích lũy được qua các ván.',
+      },
+      {
+        target: '.tour-save-btn',
+        content: 'Bấm vào đây để lưu game để chơi lại lần sau nhé!',
+      },
+      {
+        target: '.tour-game-board',
+        content: 'Đây là khu vực chơi chính. Chúc bạn chơi vui vẻ!',
+      }
+    ]
+  });
 
-  // Auto-save logic
-  useEffect(() => {
-    if (!user || isGameOver) return;
-    const autoSaveTimer = setInterval(() => {
-      handleSave(true);
-    }, 60000);
-    return () => clearInterval(autoSaveTimer);
-  }, [user, score, gameState, timeLeft, isGameOver]);
+  const handleJoyrideCallback = (data) => {
+    const { status } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      setTourState({ run: false, steps });
+    }
+  };
 
   // Fetch reviews logic
   const fetchReviews = useCallback(async () => {
@@ -51,19 +63,6 @@ export default function GameContainer({ game, user, onBack, children, score, set
       console.error('Failed to fetch reviews:', e);
     }
   }, [game?.id]);
-
-  useEffect(() => {
-    fetchReviews();
-  }, [fetchReviews]);
-
-  const handleReset = () => {
-    setTimeLeft(60);
-    setScore(0);
-    setGameState({});
-    setTimerActive(true);
-    setIsGameOver(false);
-    setResetKey(prev => prev + 1); // This remounts children and clears their internal state
-  };
 
   const handleSave = async (isAuto = false) => {
     if (!user) return;
@@ -124,6 +123,58 @@ export default function GameContainer({ game, user, onBack, children, score, set
     }
   };
 
+  // Timer logic
+  useEffect(() => {
+    let timer;
+    if (timerActive && timeLeft > 0 && timeLeft !== Infinity) {
+      timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+    } else if (timeLeft === 0) {
+      setTimerActive(false);
+      setIsGameOver(true);
+      setSnackbar({ open: true, message: 'Hết thời gian chơi rồi!', severity: 'warning' });
+    }
+    return () => clearInterval(timer);
+  }, [timerActive, timeLeft]);
+
+  // Auto-save logic
+  useEffect(() => {
+    if (!user || isGameOver) return;
+    const autoSaveTimer = setInterval(() => {
+      handleSave(true);
+    }, 60000);
+    return () => clearInterval(autoSaveTimer);
+  }, [user, score, gameState, timeLeft, isGameOver]);
+
+  // Auto-save when game over
+  useEffect(() => {
+    if (isGameOver && user) {
+      handleSave(true);
+    }
+  }, [isGameOver]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
+
+  // Load lifetime score when mounting game to guarantee points aren't overwritten with 0
+  useEffect(() => {
+    if (user && game?.id) {
+       axios.get(`${API_BASE_URL}/interactions/sessions`, {
+         params: { user_id: user.id, game_id: game.id }
+       }).then(res => {
+         if (res.data) setScore(res.data.score || 0);
+       }).catch(() => {});
+    }
+  }, [game?.id, user]);
+
+  const handleReset = () => {
+    setTimeLeft(initialTime);
+    setGameState({});
+    setTimerActive(true);
+    setIsGameOver(false);
+    setResetKey(prev => prev + 1); // This remounts children and clears their internal state
+  };
+
   const childrenWithProps = React.Children.map(children, child => {
     if (React.isValidElement(child)) {
       return React.cloneElement(child, { setTimerActive, setIsGameOver });
@@ -137,11 +188,32 @@ export default function GameContainer({ game, user, onBack, children, score, set
         
         {/* Header Stats */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, px: 2 }}>
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ bgcolor: 'rgba(33, 150, 243, 0.1)', px: 2, py: 1, borderRadius: 3 }}>
+          <Stack direction="row" spacing={1} alignItems="center" className="tour-timer" sx={{ bgcolor: 'rgba(33, 150, 243, 0.1)', px: 2, py: 1, borderRadius: 3 }}>
             <TimerIcon color="primary" />
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{timeLeft}s</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', width: 45, textAlign: 'center' }}>
+              {timeLeft === Infinity ? '∞' : timeLeft + 's'}
+            </Typography>
+            <Select 
+              size="small" 
+              value={initialTime === Infinity ? -1 : initialTime} 
+              onChange={e => {
+                const val = e.target.value === -1 ? Infinity : e.target.value;
+                setInitialTime(val);
+                setTimeLeft(val);
+                setGameState({});
+                setIsGameOver(false);
+                setTimerActive(true);
+                setResetKey(prev => prev + 1);
+              }}
+              sx={{ ml: 2, height: 35, fontSize: '0.85rem' }}
+            >
+              <MenuItem value={30}>30s</MenuItem>
+              <MenuItem value={60}>60s</MenuItem>
+              <MenuItem value={120}>120s</MenuItem>
+              <MenuItem value={-1}>Vô hạn</MenuItem>
+            </Select>
           </Stack>
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ bgcolor: 'rgba(255, 152, 0, 0.1)', px: 2, py: 1, borderRadius: 3 }}>
+          <Stack direction="row" spacing={1} alignItems="center" className="tour-score" sx={{ bgcolor: 'rgba(255, 152, 0, 0.1)', px: 2, py: 1, borderRadius: 3 }}>
             <ScoreboardIcon color="warning" />
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{score}</Typography>
           </Stack>
@@ -150,7 +222,7 @@ export default function GameContainer({ game, user, onBack, children, score, set
         <Divider sx={{ mb: 3 }} />
 
         {/* Game Content Box */}
-        <Box sx={{ 
+        <Box className="tour-game-board" sx={{ 
           minHeight: 450, 
           display: 'flex', justifyContent: 'center', alignItems: 'center', 
           bgcolor: 'background.default', borderRadius: 4, 
@@ -182,8 +254,9 @@ export default function GameContainer({ game, user, onBack, children, score, set
         {/* Controls */}
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, mb: 4 }}>
           <Stack direction="row" spacing={2} flexWrap="wrap" justifyContent="center">
+            <Button variant="outlined" color="info" onClick={() => setTourState({ run: true, steps })} startIcon={<HelpOutlineIcon />}>Hướng Dẫn</Button>
             <Button variant="outlined" color="warning" onClick={handleReset}>Làm lại</Button>
-            <Button variant="contained" startIcon={<SaveIcon />} onClick={() => handleSave(false)}>Lưu Game</Button>
+            <Button variant="contained" className="tour-save-btn" startIcon={<SaveIcon />} onClick={() => handleSave(false)}>Lưu Game</Button>
             <Button variant="outlined" startIcon={<RestorePageIcon />} onClick={handleLoad}>Tải Lại</Button>
             <Button variant="contained" color="error" onClick={onBack}>Thoát</Button>
           </Stack>
@@ -241,6 +314,26 @@ export default function GameContainer({ game, user, onBack, children, score, set
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      <Joyride
+        callback={handleJoyrideCallback}
+        continuous
+        hideCloseButton
+        run={run}
+        scrollToFirstStep
+        showProgress
+        showSkipButton
+        steps={steps}
+        styles={{
+          options: {
+            zIndex: 10000,
+            primaryColor: '#1976d2',
+            backgroundColor: '#ffffff',
+            textColor: '#333333',
+          }
+        }}
+        locale={{ back: 'Quay lại', close: 'Đóng', last: 'Hoàn thành', next: 'Tiếp tục', skip: 'Bỏ qua' }}
+      />
     </Box>
   );
 }

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Chip, Tabs, Tab } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Box, Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Chip, Tabs, Tab, TablePagination, CircularProgress } from '@mui/material';
 import axios from 'axios';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import { useUser } from '../context/UserContext';
@@ -9,15 +9,27 @@ const API_BASE_URL = 'http://localhost:3000/api';
 export default function Ranking() {
   const [ranking, setRanking] = useState([]);
   const [tab, setTab] = useState('all');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
   const { user } = useUser();
 
-  useEffect(() => {
-    const type = tab;
+  const fetchRanking = useCallback(() => {
+    setLoading(true);
     const userIdParam = user ? `&user_id=${user.id}` : '';
-    axios.get(`${API_BASE_URL}/social/ranking?type=${type}${userIdParam}`)
-      .then(res => setRanking(res.data))
-      .catch(e => console.error(e));
-  }, [tab, user]);
+    axios.get(`${API_BASE_URL}/social/ranking?type=${tab}${userIdParam}&page=${page + 1}&limit=${rowsPerPage}`)
+      .then(res => {
+        setRanking(res.data.data || []);
+        setTotal(res.data.pagination?.total || res.data.total || 0);
+      })
+      .catch(e => console.error(e))
+      .finally(() => setLoading(false));
+  }, [tab, user, page, rowsPerPage]);
+
+  useEffect(() => {
+    fetchRanking();
+  }, [fetchRanking]);
 
   const getMedalColor = (index) => {
     if (index === 0) return '#ffd700'; // Gold
@@ -53,7 +65,13 @@ export default function Ranking() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {ranking.map((row, index) => (
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  <CircularProgress sx={{ my: 4 }} />
+                </TableCell>
+              </TableRow>
+            ) : ranking.map((row, index) => (
               <TableRow 
                 key={index} 
                 sx={{ 
@@ -63,11 +81,14 @@ export default function Ranking() {
                 }}
               >
                 <TableCell align="center">
-                  {index < 3 && tab === 'all' ? (
-                    <MilitaryTechIcon sx={{ color: getMedalColor(index), fontSize: '2rem' }} />
-                  ) : (
-                    <Typography variant="h6" sx={{ color: 'text.secondary' }}>#{index + 1}</Typography>
-                  )}
+                  {(() => {
+                    const globalIndex = index + (page * rowsPerPage);
+                    return globalIndex < 3 && tab === 'all' ? (
+                      <MilitaryTechIcon sx={{ color: getMedalColor(globalIndex), fontSize: '2rem' }} />
+                    ) : (
+                      <Typography variant="h6" sx={{ color: 'text.secondary' }}>#{globalIndex + 1}</Typography>
+                    );
+                  })()}
                 </TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -82,17 +103,31 @@ export default function Ranking() {
                 </TableCell>
               </TableRow>
             ))}
-            {ranking.length === 0 && (
+            {!loading && ranking.length === 0 && (
               <TableRow>
                 <TableCell colSpan={3} align="center">
                   <Typography sx={{ py: 3 }} color="text.secondary">
-                    {tab === 'friends' ? 'Kết bạn thêm để so tài cùng họ nhé!' : 'Đang cập nhật dữ liệu...'}
+                    {tab === 'friends' ? 'Kết bạn thêm để so tài cùng họ nhé!' : 'Chưa có dữ liệu nào.'}
                   </Typography>
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={total}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(e, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+          labelRowsPerPage="Số dòng mỗi trang:"
+          sx={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}
+        />
       </TableContainer>
     </Box>
   );

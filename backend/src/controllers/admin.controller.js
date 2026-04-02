@@ -2,12 +2,18 @@ import db from '../db/db.js';
 
 export const getDashboardStats = async (req, res) => {
   try {
-    const [uCount, gCount, sCount, rCount] = await Promise.all([
+    const [uCount, gCount, sCount, rCount, reviewBreakdownQuery] = await Promise.all([
       db('users').count('id as count').first(),
       db('games').count('id as count').first(),
       db('game_sessions').count('id as count').first(),
-      db('game_reviews').count('id as count').first()
+      db('game_reviews').count('id as count').first(),
+      db('game_reviews').select('rating').count('id as count').groupBy('rating')
     ]);
+
+    const reviewBreakdown = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    reviewBreakdownQuery.forEach(row => {
+      reviewBreakdown[row.rating] = Number(row.count);
+    });
 
     const recentUsers = await db('users')
       .select('id', 'username', 'role', 'created_at')
@@ -19,7 +25,8 @@ export const getDashboardStats = async (req, res) => {
         users: Number(uCount?.count || 0),
         games: Number(gCount?.count || 0),
         sessions: Number(sCount?.count || 0),
-        reviews: Number(rCount?.count || 0)
+        reviews: Number(rCount?.count || 0),
+        reviewBreakdown
       },
       recentUsers
     });

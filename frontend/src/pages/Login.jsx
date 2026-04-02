@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Paper, Alert, Snackbar } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Box, Button, TextField, Typography, Paper, Alert, Snackbar, Link } from '@mui/material';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import axios from 'axios';
 import { useUser } from '../context/UserContext';
 
@@ -80,6 +80,13 @@ export default function Login() {
           >
             {loading ? 'Đang xử lý...' : 'Đăng nhập'}
           </Button>
+
+          <Typography variant="body2" align="center" sx={{ mt: 3 }}>
+            Chưa có tài khoản?{' '}
+            <Link component={RouterLink} to="/register" sx={{ fontWeight: 'bold', textDecoration: 'none' }}>
+              Đăng ký ngay
+            </Link>
+          </Typography>
         </form>
       </Paper>
 

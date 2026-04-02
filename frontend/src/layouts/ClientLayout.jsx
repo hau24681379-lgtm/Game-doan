@@ -16,11 +16,11 @@ export default function ClientLayout({ toggleColorMode }) {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary' }}>
-      <AppBar position="sticky" elevation={0} sx={{ borderBottom: '1px solid rgba(255,255,255,0.1)', bgcolor: 'background.paper' }}>
+      <AppBar position="sticky" elevation={0} sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}`, bgcolor: 'background.paper', color: 'text.primary' }}>
         <Toolbar>
           <Typography 
             variant="h5" 
-            sx={{ flexGrow: 1, cursor: 'pointer', fontWeight: 'bold', letterSpacing: 1 }} 
+            sx={{ flexGrow: 1, cursor: 'pointer', fontWeight: 'bold', letterSpacing: 1, color: 'primary.main' }} 
             onClick={() => navigate('/')}
           >
             🎮 GAME CENTER
@@ -40,7 +40,7 @@ export default function ClientLayout({ toggleColorMode }) {
           {!user ? (
             <Button variant="outlined" color="inherit" onClick={() => navigate('/login')} sx={{ mr: 2 }}>Đăng nhập</Button>
           ) : (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 2, bgcolor: 'rgba(255,255,255,0.05)', px: 2, py: 0.5, borderRadius: 10 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 2, bgcolor: 'action.hover', px: 2, py: 0.5, borderRadius: 10 }}>
               <Avatar src={user.avatar_url} sx={{ width: 32, height: 32 }} />
               <Typography variant="body1" sx={{ fontWeight: 'bold' }}>{user.username}</Typography>
             </Box>
@@ -54,7 +54,7 @@ export default function ClientLayout({ toggleColorMode }) {
       <Container component="main" sx={{ flexGrow: 1, py: 4, maxWidth: '1200px !important' }}>
         <Outlet />
       </Container>
-      <Box component="footer" sx={{ py: 3, textAlign: 'center', opacity: 0.5, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <Box component="footer" sx={{ py: 3, textAlign: 'center', opacity: 0.5, borderTop: (theme) => `1px solid ${theme.palette.divider}` }}>
         <Typography variant="body2">© 2026 Game Store Platform - Advanced Final Project</Typography>
       </Box>
     </Box>

@@ -4,27 +4,44 @@ import db from '../db/db.js';
 
 export const register = async (req, res) => {
   const { username, password } = req.body;
+  console.log('[Register Attempt]:', { username });
   
   if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required' });
+    return res.status(400).json({ error: 'Tên và mật khẩu không được để trống.' });
+  }
+  
+  if (username.length < 3 || username.includes(' ')) {
+    return res.status(400).json({ error: 'Tên đăng nhập phải lớn hơn 3 ký tự và không chứa khoảng trắng.' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Mật khẩu phải có ít nhất 6 ký tự.' });
   }
 
   try {
     const existingUser = await db('users').where({ username }).first();
     if (existingUser) {
-      return res.status(400).json({ error: 'Username already exists' });
+      console.log('[Register Error]: Username already exists:', username);
+      return res.status(400).json({ error: 'Tên đăng nhập này đã được sử dụng.' });
     }
 
+    // Sửa lỗi lệch ID (PostgreSQL sequence sync)
+    await db.raw("SELECT setval('users_id_seq', (SELECT MAX(id) FROM users))").catch(() => {});
+
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('[Register]: Hashing password... Success.');
+
     const [newUser] = await db('users').insert({
       username,
       password: hashedPassword,
       role: 'client'
     }).returning(['id', 'username', 'role']);
 
-    res.status(201).json({ message: 'User registered successfully', user: newUser });
+    console.log('[Register Success]: New user created:', newUser);
+    res.status(201).json({ message: 'Đăng ký thành công.', user: newUser });
   } catch (error) {
-    res.status(500).json({ error: 'Registration failed', details: error.message });
+    console.error('[Register System Error]:', error);
+    res.status(500).json({ error: 'Lỗi hệ thống khi đăng ký.', details: error.message });
   }
 };
 

@@ -8,14 +8,14 @@ export const seed = async function(knex) {
   const commonHash = await bcrypt.hash('123', saltRounds);
 
   await knex('users').insert([
-    { id: 1, username: 'admin', password: commonHash, role: 'admin' },
-    { id: 2, username: 'admin2', password: commonHash, role: 'admin' },
-    { id: 3, username: 'player1', password: commonHash, role: 'client' },
-    { id: 4, username: 'player2', password: commonHash, role: 'client' },
-    { id: 5, username: 'player3', password: commonHash, role: 'client' },
-    { id: 6, username: 'player4', password: commonHash, role: 'client' },
-    { id: 7, username: 'player5', password: commonHash, role: 'client' },
-    { id: 8, username: 'player6', password: commonHash, role: 'client' },
-    { id: 9, username: 'player7', password: commonHash, role: 'client' }
+    { username: 'admin', password: commonHash, role: 'admin' },
+    { username: 'admin2', password: commonHash, role: 'admin' },
+    { username: 'player1', password: commonHash, role: 'client' },
+    { username: 'player2', password: commonHash, role: 'client' },
+    { username: 'player3', password: commonHash, role: 'client' },
+    { username: 'player4', password: commonHash, role: 'client' },
+    { username: 'player5', password: commonHash, role: 'client' },
+    { username: 'player6', password: commonHash, role: 'client' },
+    { username: 'player7', password: commonHash, role: 'client' }
   ]);
 };

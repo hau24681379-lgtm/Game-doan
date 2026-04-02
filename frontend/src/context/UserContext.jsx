@@ -8,7 +8,12 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     const savedUser = localStorage.getItem('game_user');
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        console.error('Lỗi nạp dữ liệu người dùng:', e);
+        localStorage.removeItem('game_user');
+      }
     }
   }, []);
 

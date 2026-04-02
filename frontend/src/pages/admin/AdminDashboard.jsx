@@ -6,7 +6,7 @@ import GamesIcon from '@mui/icons-material/Games';
 import RateReviewIcon from '@mui/icons-material/RateReview';
 import api from '../../utils/api';
 
-const StatCard = ({ title, value, icon, gradient }) => (
+const StatCard = ({ title, value, icon, gradient, children }) => (
   <Card sx={{ 
     height: '100%', 
     borderRadius: 6, 
@@ -24,6 +24,7 @@ const StatCard = ({ title, value, icon, gradient }) => (
           <Typography variant="h3" sx={{ fontWeight: 800, color: 'white' }}>{value}</Typography>
         </Box>
       </Stack>
+      {children && <Box sx={{ mt: 3, pt: 2, borderTop: '1px solid rgba(255,255,255,0.1)' }}>{children}</Box>}
     </CardContent>
   </Card>
 );
@@ -56,7 +57,18 @@ export default function AdminDashboard() {
         <Grid item xs={12} sm={6} md={3}><StatCard title="Thành Viên" value={data.stats.users} icon={<PeopleIcon />} gradient="linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)" /></Grid>
         <Grid item xs={12} sm={6} md={3}><StatCard title="Trò Chơi" value={data.stats.games} icon={<SportsEsportsIcon />} gradient="linear-gradient(135deg, #064e3b 0%, #10b981 100%)" /></Grid>
         <Grid item xs={12} sm={6} md={3}><StatCard title="Phiên Chơi" value={data.stats.sessions} icon={<GamesIcon />} gradient="linear-gradient(135deg, #78350f 0%, #f59e0b 100%)" /></Grid>
-        <Grid item xs={12} sm={6} md={3}><StatCard title="Đánh Giá" value={data.stats.reviews} icon={<RateReviewIcon />} gradient="linear-gradient(135deg, #7f1d1d 0%, #ef4444 100%)" /></Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard title="Đánh Giá" value={data.stats.reviews} icon={<RateReviewIcon />} gradient="linear-gradient(135deg, #7f1d1d 0%, #ef4444 100%)">
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              {[5, 4, 3, 2, 1].map(star => (
+                <Box key={star} sx={{ textAlign: 'center' }}>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', display: 'block', fontWeight: 'bold' }}>{star}★</Typography>
+                  <Typography variant="body2" sx={{ color: 'white', fontWeight: 900 }}>{data.stats.reviewBreakdown?.[star] || 0}</Typography>
+                </Box>
+              ))}
+            </Stack>
+          </StatCard>
+        </Grid>
 
         <Grid item xs={12}>
           <Paper sx={{ p: 4, borderRadius: 6, bgcolor: 'rgba(255,255,255,0.02)' }}>
